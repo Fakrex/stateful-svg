@@ -22,6 +22,21 @@ function IconMixinsGen() {
 	var commonMixins = function () {
 		var res = {};
 
+		res.addSize = '.common-icon-add-size(@src, @width, @height) {\n' +
+			'\t@replace-default: escape(\'<svg \'); \n' +
+			'\t@replace-new: escape(\'<svg width="@{width}" height="@{height}" \');\n' +
+			'\t@modified-src: replace("@{src}", "@{replace-default}", "@{replace-new}");\n' +
+			'\tbackground: e(@modified-src);\n' +
+		'}\n\n';
+
+		res.addSizeAndFill = '.common-icon-add-size-and-fill(@src, @width, @height, @fill) {\n' +
+			'\t@replace-default: escape(\'<svg \');\n' +
+			'\t@replace-new: escape(\'<svg width="@{width}" height="@{height}" \');\n' +
+			'\t@modified-src: replace("@{src}", "@{replace-default}", "@{replace-new}");\n' +
+			'\t@res-src: replace("@{src}", "fill\%3D\%22\%23[\\w]{3,6}\%22", escape(\'fill="@{fill}"\'), "g");\n' +
+			'\tbackground: e(@res-src);\n' +
+		'}\n\n';
+
 		res.fill = '.common-icon-fill(@src, @fill) {\n' +
 			'\t@modified-src: replace("@{src}", "fill\%3D\%22\%23[\\w]{3,6}\%22", escape(\'fill="@{fill}"\'), "g");\n' +
 			'\tbackground: e(@modified-src);\n' +
@@ -73,6 +88,16 @@ function IconMixinsGen() {
 						'\tbackground-repeat: no-repeat;\n' +
 					'}\n\n' ;
 
+					currentStatefulMixinAddSize = '.icon-' + filename + '-add-size(@width, @height) { \n' +
+						'\t.common-icon-add-size("@{src-' + filename + '}", "@{width}", "@{height}");\n' +
+						'\tbackground-repeat: no-repeat;\n' +
+					'}\n\n';
+
+					currentStatefullMixinAddSizeAndFill = '.icon-' + filename + '-add-size-and-fill(@width, @height, @color) { \n' +
+						'\t.common-icon-add-size-and-fill("@{src-' + filename + '}", "@{width}", "@{height}", "@{color}");\n' +
+						'\tbackground-repeat: no-repeat;\n' +
+					'}\n\n';
+
 					currentStatefulMixinFill = '.icon-' + filename + '-fill (@color) {\n' +
 						'\t.common-icon-fill("@{src-' + filename + '}", "@{color}");\n' +
 						'\tbackground-repeat: no-repeat;\n' +
@@ -93,6 +118,8 @@ function IconMixinsGen() {
 				}
 
 				fs.appendFileSync(resultFilename, srcOrigin + currentOriginalMixin +
+				 currentStatefulMixinAddSize +
+				 currentStatefullMixinAddSizeAndFill +
 				 currentStatefulMixinFill +
 			 	 currentStatefulMixinResize +
 		 	 	 currentStatefulMixinFully);
